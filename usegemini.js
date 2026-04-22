@@ -9,3 +9,16 @@ const main12 = async()=> {
   });
   console.log(response.text);
 }
+function App() {
+  const [count, setCount] = useState(0)
+   useEffect(()=>{
+  main12()
+   },[])  
+  return (
+    <>
+    {}
+    </>
+  )
+}
+
+export default App
