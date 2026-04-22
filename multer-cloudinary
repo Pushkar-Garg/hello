@@ -1,0 +1,36 @@
+const express = require("express");
+const app = express();
+const cloudinary = require("cloudinary").v2;
+const CloudinaryStorage = require("multer-storage-cloudinary")
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true // Ensures all generated URLs use HTTPS
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params:{
+        folder:"youtubeVideos",
+        format:(req,file)=>"mp4",
+        public_id:(req,file)=> file.originalname+'-'+Date.now(),
+    }
+})
+
+const uploader = multer({ storage , limits:{fileSize: 1*1024*1024} });
+
+
+app.post("/uploads", uploader.single("videoFile"), (req, res) => {
+  console.log(req.file); // it will returns an object after uploading the incomming video to cloudinary
+  console.log(req.file.path); //it's URL of the video file uploaded to the cloudinary 
+});
+// NOTE-- uploader.single("videoFile") is a middleware which can upload only single file to the uploads folder at a time
+// NOTE-- uploader.array("videoFile",4) is a middleware which can upload 4 file to the "uploads" folder at a time
+// NOTE-- uploader.feilds([{name:First-videoFile},{name:Second-videoFile}]) is a middleware which can upload 4 file to the "uploads" folder at a time
