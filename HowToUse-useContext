@@ -1,0 +1,49 @@
+STEP-1-- createContext and create UserProvider WRAPPER-
+  make a File named-- UserContext.js
+            import React, { createContext, useState } from 'react';
+            
+            // 1. Create the Context object
+            export const UserContext = createContext();
+            
+            // 2. Create a Provider component
+            export const UserProvider = ({ children }) => {
+              const [user, setUser] = useState(null); // This is your global state
+            
+              return (
+                <UserContext.Provider value={{ user, setUser }}>
+                  {children}
+                </UserContext.Provider>
+              );
+            };
+STEP-2-- WRAP App.js into UserProvider wrapper so to access useContext globally in all routes
+
+      import { UserProvider } from './context/UserContext'; // Import the provider
+      
+      function App() {
+        return (
+          <UserProvider> {/* <--- Everything inside here can use the context */}
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/Employee" element={<Crud />} />
+              </Routes>
+            </BrowserRouter>
+          </UserProvider>
+        );
+      }
+
+STEP-3-- simply use
+      import React, { useContext } from 'react';
+      import { UserContext } from '../context/UserContext';
+      
+      function Crud() {
+        const { user } = useContext(UserContext);
+      
+        return (
+          <div>
+            {user ? <h1>Welcome, {user.name}!</h1> : <h1>Please Log In</h1>}
+            {/* ... your existing CRUD code ... */}
+          </div>
+        );
+      }
