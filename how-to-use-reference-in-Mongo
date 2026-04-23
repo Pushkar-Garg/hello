@@ -1,0 +1,63 @@
+const mongoose = require('mongoose');
+
+// 1. Author Schema
+const authorSchema = new mongoose.Schema({
+  name: String,
+  email: String
+});
+
+const Author = mongoose.model('Author', authorSchema);
+
+// 2. Post Schema (This is where the Reference happens!)
+const postSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  // The 'author' field stores the _id of an Author document
+  author: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Author' // This matches the name of the Author model
+  }
+});
+
+const Post = mongoose.model('Post', postSchema);
+async function createData() {
+  // Create a new author
+  const newAuthor = new Author({
+    name: 'Jane Doe',
+    email: 'jane@example.com'
+  });
+ const Auth=  await newAuthor.save();
+
+  // Create a new post and link the author's _id to it
+  const newPost = new Post({
+    title: 'MongoDB References Explained',
+    content: 'References are like foreign keys...',
+    author: Auth._id // Saving the reference here!
+  });
+ await newPost.save();
+
+  console.log('Data created and linked!');
+}
+async function getPostWithAuthor() {
+  // Find a post, but replace the author _id with the actual Author document
+  const post = await Post.findOne({ title: 'MongoDB References Explained' })
+                         .populate('author'); // This is where the magic happens
+
+  console.log(post);
+}
+
+// Example Output:
+/*
+{
+  _id: 64b8d7f...,
+  title: 'MongoDB References Explained',
+  content: 'References are like foreign keys...',
+  author: {
+    _id: 64b8d7e...,
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    __v: 0
+  },
+  __v: 0
+}
+*/
